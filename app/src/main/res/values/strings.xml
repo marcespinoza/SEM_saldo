@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">SEM Formosa</string>
+    <string name="action_settings">Settings</string>
+    <string name="inicio_sesion">Debes registrarte en formosa.dat. Si ya estas registrado utiliza el mismo nombre de usuario y contraseña</string>
+</resources>
