@@ -10,6 +10,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
+        android:id="@+id/saldo_sem"
         android:text="Saldo SEM"/>
 
     <TextView
@@ -20,8 +21,10 @@
         android:layout_gravity="center"
         android:gravity="center_horizontal|center_vertical"
        />
+
       <TextView
           android:id="@+id/fecha_Saldo"
+          android:textSize="15dp"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
           android:layout_gravity="center"/>

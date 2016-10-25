@@ -29,25 +29,6 @@
       android:layout_height="match_parent"
       android:orientation="vertical">
 
-        <LinearLayout
-            xmlns:android="http://schemas.android.com/apk/res/android"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center|center_vertical"
-            android:background="@color/blue_pressed">
-
-       <TextView
-             android:id="@+id/texto_1"
-             android:layout_width="wrap_content"
-             android:layout_height="wrap_content"
-             android:layout_gravity="center"
-             android:layout_marginLeft="20dp"
-             android:layout_marginRight="20dp"
-             android:gravity="center"
-             android:textSize="30dp"
-             android:text="Sistema de Estacionamiento Medido"/>
-
-        </LinearLayout>
 
     <TextView
         android:layout_width="wrap_content"
@@ -102,8 +83,9 @@
             android:layout_width="match_parent"
             android:layout_height="80dp"
             custom:tickStart="0"
-            custom:tickInterval="3"
-            custom:tickEnd="21"
+            custom:tickInterval="5"
+            custom:tickEnd="40"
+            custom:pinMaxFont="12sp"
             custom:rangeBar="false"
             android:layout_marginLeft="16dp"
             android:layout_marginRight="16dp"/>

@@ -3,78 +3,60 @@ package com.sem.formosa;
 /**
  * Created by Marcelo on 12/10/2016.
  */
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.Map;
-import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.IntentService;
 import android.app.PendingIntent;
+import android.app.Service;
 import android.appwidget.AppWidgetManager;
-import android.content.ComponentName;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.os.Bundle;
-import android.os.Handler;
+import android.os.IBinder;
+import android.support.annotation.Nullable;
 import android.util.Log;
-import android.widget.RemoteViews;
-import android.widget.Toast;
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
-import org.json.JSONException;
-import org.json.JSONObject;
 
-public class UpdateService extends IntentService {
+public class UpdateService extends Service {
 
-    private int result = Activity.RESULT_CANCELED;
-    public static final String URL = "urlpath";
-    public static final String FILENAME = "filename";
-    public static final String FILEPATH = "filepath";
-    public static final String RESULT = "result";
-    public static final String NOTIFICATION = "com.vogella.android.service.receiver";
     public static String CLOCK_WIDGET_UPDATE = "com.eightbitcloud.example.widget.8BITCLOCK_WIDGET_UPDATE";
-
-    RequestQueue MyRequestQueue;
+   BroadcastReceiver receiver=null;
     SharedPreferences.Editor editor;
-    Handler mHandler = new Handler();
 
-    public UpdateService() {
-        super("DownloadService");
+    @Override
+    public void onCreate() {
+        super.onCreate();
+
     }
 
     @Override
-    protected void onHandleIntent(Intent intent) {
-
-        Log.i("alarmita","alarmita");
-        long ct = System.currentTimeMillis(); //get current time
-        AlarmManager mgr=(AlarmManager)getApplicationContext().getSystemService(Context.ALARM_SERVICE);
-        Intent intenti = new Intent(CLOCK_WIDGET_UPDATE);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), 0, intenti, PendingIntent.FLAG_UPDATE_CURRENT);
-        mgr.setInexactRepeating(AlarmManager.RTC, ct, 7000, pendingIntent);
-
-
-}
-
-    private void publishResults(String outputPath, int result) {
-        Intent intent = new Intent(NOTIFICATION);
-        intent.putExtra(FILEPATH, outputPath);
-        intent.putExtra(RESULT, result);
-        sendBroadcast(intent);
+    public void onDestroy() {
+        super.onDestroy();
+        this.unregisterReceiver(this.receiver);
     }
 
+    @Nullable
+    @Override
+    public IBinder onBind(Intent intent) {
+        return null;
+    }
 
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        super.onStartCommand(intent, flags, startId);
+        receiver = new UpdateReceiver();
+        IntentFilter filter = new IntentFilter();
+        filter.setPriority(IntentFilter.SYSTEM_HIGH_PRIORITY);
+        filter.addAction(Intent.ACTION_SCREEN_ON);
+        filter.addAction(Intent.ACTION_SCREEN_OFF);
+        this.registerReceiver(receiver, filter);
+        long ct = System.currentTimeMillis(); //get current time
+        AlarmManager mgr=(AlarmManager)getApplicationContext().getSystemService(Context.ALARM_SERVICE);
+        Intent intenti = new Intent(this,UpdateReceiver.class);
+        intenti.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), 0, intenti, PendingIntent.FLAG_UPDATE_CURRENT);
+        mgr.setInexactRepeating(AlarmManager.RTC, ct, 70000, pendingIntent);
+        return START_STICKY;
+    }
 
 }
