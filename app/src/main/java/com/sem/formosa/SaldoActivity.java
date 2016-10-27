@@ -15,6 +15,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.RemoteViews;
 import android.widget.TextView;
@@ -22,13 +23,14 @@ import android.widget.TextView;
 import com.appyvet.rangebar.RangeBar;
 import com.github.clans.fab.FloatingActionButton;
 import com.github.clans.fab.FloatingActionMenu;
+import com.kyleduo.switchbutton.SwitchButton;
 
 /**
  * Created by Marcelo on 10/10/2016.
  */
 public class SaldoActivity extends AppCompatActivity {
 
-    TextView saldo_sem, saldo, ultimo_saldo, texto_1,texto_2,texto_3, texto_4;
+    TextView texto_notificacion, saldo, ultimo_saldo, texto_1,texto_2,texto_3, texto_4;
     private FloatingActionMenu fab;
     private FloatingActionButton compartir;
     private FloatingActionButton mensaje;
@@ -36,6 +38,7 @@ public class SaldoActivity extends AppCompatActivity {
     RangeBar range_bar;
     EditText range_saldo;
     SharedPreferences pref;
+    SwitchButton switchButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,7 +67,6 @@ public class SaldoActivity extends AppCompatActivity {
                                               int rightPinIndex,
                                               String leftPinValue, String rightPinValue) {
                 range_saldo.setText("$ "+rightPinValue);
-                pref = getApplicationContext().getSharedPreferences("SEM_SALDO", MODE_PRIVATE);
                 SharedPreferences.Editor editor = pref.edit();
                 editor.putString("check_saldo", rightPinValue);
                 editor.commit();
@@ -75,10 +77,21 @@ public class SaldoActivity extends AppCompatActivity {
         Typeface roboto = Typeface.createFromAsset(getAssets(), "fonts/Roboto-Light.ttf");
         Typeface roboto_bold = Typeface.createFromAsset(getAssets(), "fonts/Roboto-Bold.ttf");
         Typeface trueno = Typeface.createFromAsset(getAssets(), "fonts/TruenoBd.otf");
-
+        switchButton = (SwitchButton) findViewById(R.id.notification_switch);
+        switchButton.setChecked(pref.getBoolean("switch", false));
+        switchButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                SharedPreferences.Editor editor = pref.edit();
+                editor.putBoolean("switch", isChecked);
+                editor.commit();
+            }
+        });
+        texto_notificacion = (TextView) findViewById(R.id.notification_text);
         texto_2 = (TextView) findViewById(R.id.texto_2);
         texto_3 = (TextView) findViewById(R.id.texto_3);
         texto_4 = (TextView) findViewById(R.id.texto_4);
+        texto_notificacion.setTypeface(asenine);
         texto_2.setTypeface(asenine);
         texto_3.setTypeface(asenine);
         texto_4.setTypeface(asenine);
@@ -112,9 +125,11 @@ public class SaldoActivity extends AppCompatActivity {
         compartir.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(Intent.ACTION_VIEW);
-                intent.setData(Uri.parse("https://play.google.com/store/apps/details?id=com.sem.saldo"));
-                startActivity(intent);
+                Intent i = new Intent(Intent.ACTION_SEND);
+                i.setType("text/plain");
+                i.putExtra(Intent.EXTRA_SUBJECT, "SEM Control");
+                i.putExtra(Intent.EXTRA_TEXT, "https://play.google.com/store/apps/details?id=com.sem.saldo");
+                startActivity(Intent.createChooser(i, "choose one"));
             }
         });
 

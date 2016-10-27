@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">SEM Formosa</string>
+    <string name="app_name">SEM Control</string>
     <string name="action_settings">Settings</string>
     <string name="inicio_sesion">Para iniciar sesión debes estar registrado. Si no lo estás dirígete a formosa.dat.cespi.unlp.edu.ar</string>
 </resources>

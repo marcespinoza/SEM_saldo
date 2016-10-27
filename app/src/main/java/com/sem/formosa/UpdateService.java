@@ -55,7 +55,7 @@ public class UpdateService extends Service {
         Intent intenti = new Intent(this,UpdateReceiver.class);
         intenti.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), 0, intenti, PendingIntent.FLAG_UPDATE_CURRENT);
-        mgr.setInexactRepeating(AlarmManager.RTC, ct, 70000, pendingIntent);
+        mgr.setInexactRepeating(AlarmManager.RTC, ct, 60000, pendingIntent);
         return START_STICKY;
     }
 

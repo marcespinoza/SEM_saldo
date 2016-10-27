@@ -48,17 +48,17 @@
 
         <View
             android:layout_width="match_parent"
-            android:layout_height="1dip"
+            android:layout_height="2dip"
+            android:layout_marginTop="10dp"
             android:layout_marginBottom="10dp"
             android:layout_marginRight="40dp"
             android:layout_marginLeft="40dp"
-            android:background="#ff29b6f6" />
+            android:background="#ff607d8b" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginTop="10dp"
         android:textSize="20dp"
         android:id="@+id/ultimo_saldo"/>
 
@@ -72,10 +72,12 @@
 
         <View
             android:layout_width="match_parent"
-            android:layout_height="1dip"
+            android:layout_height="2dip"
+            android:layout_marginBottom="10dp"
+            android:layout_marginTop="10dp"
             android:layout_marginRight="40dp"
             android:layout_marginLeft="40dp"
-            android:background="#ff29b6f6" />
+            android:background="#ff607d8b" />
 
         <com.appyvet.rangebar.RangeBar
             xmlns:custom="http://schemas.android.com/apk/res-auto"
@@ -115,10 +117,35 @@
 
         </LinearLayout>
 
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="2dip"
+            android:layout_marginTop="10dp"
+            android:layout_marginRight="40dp"
+            android:layout_marginLeft="40dp"
+            android:layout_marginBottom="10dp"
+            android:background="#ff607d8b" />
+
+        <com.kyleduo.switchbutton.SwitchButton
+            android:id="@+id/notification_switch"
+            android:layout_gravity="center"
+            app:kswTintColor="#ff43a047"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <TextView
+            android:id="@+id/notification_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:textSize="20dp"
+            android:text="Enviar notificación al iniciar estacionamiento"/>
 
     </LinearLayout>
 
     </ScrollView>
+
         <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
             xmlns:fab="http://schemas.android.com/apk/res-auto"
             xmlns:tools="http://schemas.android.com/tools"
@@ -180,7 +207,7 @@
                 android:src="@drawable/share"
                 fab:menu_colorPressed="#ff80deea"
                 fab:menu_colorRipple="#ff80deea"
-                fab:menu_colorNormal="#ff80deea"
+                fab:fab_colorNormal="#ff43a047"
                 fab:fab_size="mini"
                 fab:fab_label="Compartir con un amigo" />
 
@@ -189,7 +216,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/message"
-                fab:menu_colorNormal="#ff80deea"
+                fab:fab_colorNormal="#ff43a047"
                 fab:fab_size="mini"
                 fab:fab_label="Dejar mensaje" />
 
@@ -198,7 +225,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/logout"
-                fab:menu_colorNormal="#ff80deea"
+                fab:fab_colorNormal="#ff43a047"
                 fab:fab_size="mini"
                 fab:fab_label="Cerrar sesión" />
 

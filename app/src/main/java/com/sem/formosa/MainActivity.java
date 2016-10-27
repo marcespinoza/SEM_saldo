@@ -9,7 +9,10 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
@@ -21,6 +24,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.RemoteViews;
 import android.widget.TextView;
@@ -33,9 +37,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.beardedhen.androidbootstrap.BootstrapButton;
-import com.hkm.ui.processbutton.iml.ActionProcessButton;
 import com.klinker.android.link_builder.Link;
-import com.klinker.android.link_builder.LinkBuilder;
 import com.leo.simplearcloader.ArcConfiguration;
 import com.leo.simplearcloader.SimpleArcDialog;
 import com.leo.simplearcloader.SimpleArcLoader;
@@ -64,6 +66,7 @@ public class MainActivity extends AppCompatActivity  {
     SharedPreferences.Editor editor;
     SharedPreferences pref;
     TextView texto1;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -105,11 +108,30 @@ public class MainActivity extends AppCompatActivity  {
         login_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.i("entro","a19"+input_contraseña.getText().toString());
                 if(input_usuario.getText().toString().length()==0 || input_contraseña.getText().toString().length()==0) {
-                    TastyToast.makeText(getApplicationContext(), "Rellena todos los campos!", TastyToast.LENGTH_LONG, TastyToast.WARNING);
-                }else{mDialog.show();
-                iniciarSesion();}
+                    Snackbar snackbar=Snackbar.make(findViewById(R.id.snackbarPosition), "Rellena todos los campos!", Snackbar.LENGTH_LONG);
+                    View snackBarView = snackbar.getView();
+                    final int version = Build.VERSION.SDK_INT;
+                    if (version >= 23) {
+                        snackBarView.setBackgroundColor(ContextCompat.getColor(getApplication(), R.color.material_red_600));
+                    } else {
+                        snackBarView.setBackgroundColor(getResources().getColor(R.color.material_red_600));
+                    }
+                    snackbar.show();
+                }else if(NetworkUtils.isConnected(getApplicationContext())){
+                    mDialog.show();
+                    iniciarSesion();}
+                else{
+                    Snackbar snackbar=Snackbar.make(findViewById(R.id.snackbarPosition), "Comprueba si tienes conexión!", Snackbar.LENGTH_LONG);
+                    View snackBarView = snackbar.getView();
+                    final int version = Build.VERSION.SDK_INT;
+                    if (version >= 23) {
+                        snackBarView.setBackgroundColor(ContextCompat.getColor(getApplication(), R.color.material_red_600));
+                    } else {
+                        snackBarView.setBackgroundColor(getResources().getColor(R.color.material_red_600));
+                    }
+                    snackbar.show();
+                }
             }
         });
         checkLogin(usuario);
@@ -155,6 +177,7 @@ public class MainActivity extends AppCompatActivity  {
                 Log.i("post",""+response);
                 JSONObject sem = null;
                 String errorCode = null;
+                String token = null;
                 String messageError = null;
                 String saldo = null;
                 DateFormat df = new SimpleDateFormat("dd/MM/yyyy - HH:mm");
@@ -163,24 +186,20 @@ public class MainActivity extends AppCompatActivity  {
                 try {
                     sem = new JSONObject(response);
                     errorCode = sem.getString("errorCode");
-                    Log.i("entro","a17"+errorCode);
                     messageError = sem.getString("messageError");
-                    Log.i("entro","a18"+errorCode);
                     saldo = sem.getString("saldo");
-                    Log.i("entro","a19"+errorCode);
+                    token = sem.getString("token");
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-              if(errorCode.equals("20")){
-                  Toast.makeText(getApplicationContext(), messageError, Toast.LENGTH_SHORT).show();
-              }else if(errorCode.equals("17")){
-
-                  Toast.makeText(getApplicationContext(), messageError, Toast.LENGTH_SHORT).show();
+              if(errorCode.equals("20")||errorCode.equals("17")){
+                  TastyToast.makeText(getApplicationContext(), messageError, TastyToast.LENGTH_LONG, TastyToast.ERROR);
 
               }else{
                   editor = pref.edit();
                   editor.putString("saldo", saldo);
                   editor.putString("fecha_saldo", date);
+                  editor.putString("token",token);
                   editor.putString("usuario", input_usuario.getText().toString());
                   editor.putString("contraseña", input_contraseña.getText().toString());
                   editor.commit();

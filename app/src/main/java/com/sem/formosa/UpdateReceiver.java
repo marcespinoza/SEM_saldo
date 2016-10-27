@@ -50,14 +50,14 @@ public class UpdateReceiver extends BroadcastReceiver {
         pref = context.getSharedPreferences("SEM_SALDO", context.MODE_PRIVATE);
         if ((intent.getAction().equals("android.intent.action.SCREEN_OFF"))||(intent.getAction().equals("android.intent.action.SCREEN_ON"))) {
 
-            Log.i("reciver", "APP_WIDGET_UPDATE "+intent.getAction());
-            updateWidget(context);
+            if(NetworkUtils.isConnected(context)){
+            updateWidget(context);}
+           // checkEstacionamiento(context);}
         }
 
     }
 
     public void updateWidget(final Context context){
-        Log.i("shared","shared"+(pref.getString("usuario", null)));
         if((pref.getString("usuario", null))!=null) {
             pref = context.getSharedPreferences("SEM_SALDO", context.MODE_PRIVATE);
             MyRequestQueue = Volley.newRequestQueue(context);
@@ -84,9 +84,9 @@ public class UpdateReceiver extends BroadcastReceiver {
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
-                    if (errorCode == "20") {
+                    if (errorCode.equals("20")) {
                         Toast.makeText(context, messageError, Toast.LENGTH_SHORT).show();
-                    } else if (errorCode == "20") {
+                    } else if (errorCode.equals("20")) {
                         Toast.makeText(context, messageError, Toast.LENGTH_SHORT).show();
                     } else {
                         AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
@@ -119,7 +119,7 @@ public class UpdateReceiver extends BroadcastReceiver {
                     Map<String, String> MyData = new HashMap<String, String>();
                     MyData.put("op", "login");
                     MyData.put("celular", pref.getString("usuario", null));
-                    MyData.put("password", pref.getString("contraseña", null));
+                    MyData.put("password", pref.getString("password", null));
                     MyData.put("codigoMunicipio", "17");
                     MyData.put("agente", "8");
                     MyData.put("version", "1.12");//Add the data you'd like to send to the server.
@@ -138,6 +138,68 @@ public class UpdateReceiver extends BroadcastReceiver {
                 remoteViews.setTextViewText(R.id.fecha_Saldo, "..");
                 appWidgetManager.updateAppWidget(widgetId, remoteViews);
             }
+        }
+    }
+
+    public void checkEstacionamiento(final Context context){
+        if((pref.getString("usuario", null))!=null) {
+            pref = context.getSharedPreferences("SEM_SALDO", context.MODE_PRIVATE);
+            MyRequestQueue = Volley.newRequestQueue(context);
+            String url = "https://core-formosa.dat.cespi.unlp.edu.ar/mobile/global";
+            StringRequest MyStringRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
+                @Override
+                public void onResponse(String response) {
+                    Log.i("post", "" + response);
+                    JSONObject sem = null;
+                    String errorCode = null;
+                    String messageError = null;
+                    String saldo = null;
+                    DateFormat df = new SimpleDateFormat("dd/MM/yyyy - HH:mm");
+                    String date = df.format(Calendar.getInstance().getTime());
+                    try {
+                        sem = new JSONObject(response);
+                        errorCode = sem.getString("errorCode");
+                        messageError = sem.getString("messageError");
+                        editor = pref.edit();
+                        editor.commit();
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    if (errorCode.equals("8")) {
+                        //No tiene estacionamiento en curso
+                        Toast.makeText(context, messageError, Toast.LENGTH_SHORT).show();
+                    } else if (errorCode.equals("2")) {
+                        //Tiene estacionamiento en curso
+                        Toast.makeText(context, messageError, Toast.LENGTH_SHORT).show();
+                    } else {
+
+                        String check_saldo = pref.getString("check_saldo", "0");
+                        if (Float.parseFloat(saldo) < Float.parseFloat(check_saldo)) {
+                            showNotification(context);
+                        }
+
+                    }
+                    //This code is executed if the server responds, whether or not the response contains data.
+                    //The String 'response' contains the server's response.
+                }
+            }, new Response.ErrorListener() { //Create an error listener to handle errors appropriately.
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    //This code is executed if there is an error.
+                }
+            }) {
+                protected Map<String, String> getParams() {
+                    Map<String, String> MyData = new HashMap<String, String>();
+                    MyData.put("op", "consultarEstado");
+                    MyData.put("celular", pref.getString("usuario", null));
+                    MyData.put("token", pref.getString("token", null));
+                    MyData.put("codigoMunicipio", "17");
+                    MyData.put("agente", "8");
+                    MyData.put("version", "1.12");//Add the data you'd like to send to the server.
+                    return MyData;
+                };
+            };
+            MyRequestQueue.add(MyStringRequest);
         }
     }
 

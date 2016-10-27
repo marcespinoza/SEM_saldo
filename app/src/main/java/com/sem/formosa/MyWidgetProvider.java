@@ -33,7 +33,6 @@ public class MyWidgetProvider extends AppWidgetProvider {
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager,
                          int[] appWidgetIds) {
-     Log.i("alarmita","onupdate");
         pref = context.getSharedPreferences("SEM_SALDO", 0);
         usuario=pref.getString("usuario", null);
         saldo=pref.getString("saldo", null);
