@@ -1,5 +1,6 @@
 package com.sem.formosa;
 
+import android.app.NotificationManager;
 import android.appwidget.AppWidgetManager;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -38,7 +39,7 @@ public class SaldoActivity extends AppCompatActivity {
     RangeBar range_bar;
     EditText range_saldo;
     SharedPreferences pref;
-    SwitchButton switchButton;
+    SwitchButton switchButton, estacionamientSwitch;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,6 +78,17 @@ public class SaldoActivity extends AppCompatActivity {
         Typeface roboto = Typeface.createFromAsset(getAssets(), "fonts/Roboto-Light.ttf");
         Typeface roboto_bold = Typeface.createFromAsset(getAssets(), "fonts/Roboto-Bold.ttf");
         Typeface trueno = Typeface.createFromAsset(getAssets(), "fonts/TruenoBd.otf");
+        estacionamientSwitch = (SwitchButton) findViewById(R.id.estacionamiento_switch);
+        estacionamientSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                SharedPreferences.Editor editor = pref.edit();
+                editor.putInt("contador", 1);
+                editor.commit();
+                NotificationManager notificationManager = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+                notificationManager.cancel(1);
+            }
+        });
         switchButton = (SwitchButton) findViewById(R.id.notification_switch);
         switchButton.setChecked(pref.getBoolean("switch", false));
         switchButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {

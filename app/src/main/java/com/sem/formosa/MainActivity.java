@@ -137,22 +137,6 @@ public class MainActivity extends AppCompatActivity  {
         checkLogin(usuario);
     }
 
-    private List<Link> getExampleLinks() {
-        List<Link> links = new ArrayList<>();
-
-        final Link sem = new Link("https://formosa.dat.cespi.unlp.edu.ar");
-        sem.setTextColor(Color.parseColor("#00BCD4"));
-        sem.setHighlightAlpha(.4f);
-        sem.setOnClickListener(new Link.OnClickListener() {
-            @Override
-            public void onClick(String clickedText) {
-                Log.i("clii","clii");
-            }
-        });
-        links.add(sem);
-        return links;
-    }
-
     private void checkLogin(String usuario){
         if(usuario!=null){
             Bundle bundle = new Bundle();
