@@ -1,4 +1,4 @@
-package com.sem.formosa;
+package com.sem.control;
 
 import org.junit.Test;
 

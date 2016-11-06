@@ -12,7 +12,7 @@ android {
     compileSdkVersion 23
     buildToolsVersion "24.0.0"
     defaultConfig {
-        applicationId "com.sem.formosa"
+        applicationId "com.sem.control"
         minSdkVersion 16
         targetSdkVersion 23
         versionCode 1
@@ -23,7 +23,7 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            debuggable true
+            debuggable false
             signingConfig signingConfigs.config
         }
     }
@@ -52,4 +52,8 @@ dependencies {
     compile 'com.sdsmdg.tastytoast:tastytoast:0.1.0'
     compile 'com.kyleduo.switchbutton:library:1.4.4'
     compile 'com.github.rey5137:material:1.2.4'
+    compile 'io.github.kobakei:ratethisapp:1.1.0'
+    compile 'com.github.marcoscgdev.EasyLicensesDialog:appcompatversion:1.0.4'
+    compile 'com.jaredrummler:material-spinner:1.1.0'
+    compile 'com.jaredrummler:material-spinner:1.1.0'
 }

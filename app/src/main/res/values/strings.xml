@@ -2,4 +2,10 @@
     <string name="app_name">SEM Control</string>
     <string name="action_settings">Settings</string>
     <string name="inicio_sesion">Para iniciar sesión debes estar registrado. Si no lo estás dirígete a formosa.dat.cespi.unlp.edu.ar</string>
+    <string name="my_own_title" >SEM Control</string>
+    <string name="my_own_message" >Te sirvió la aplicacioón. Entonces tómate un
+    minuto para calificarla</string>
+    <string name="my_own_rate" >Calificar ahora</string>
+    <string name="my_own_thanks" >Mas tarde</string>
+    <string name="my_own_cancel" >No, gracias</string>
 </resources>

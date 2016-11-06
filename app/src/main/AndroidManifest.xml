@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.sem.formosa" >
+    package="com.sem.control" >
     <uses-permission android:name="android.permission.INTERNET"></uses-permission>
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
@@ -23,9 +23,12 @@
             android:theme="@style/AppTheme.NoActionBar" >
 
         </activity>
-        <receiver android:name=".MyWidgetProvider" >
+        <receiver android:name=".MyWidgetProvider"
+            android:exported="false">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="android.appwidget.action.APPWIDGET_DELETED" />
+                <action android:name="android.appwidget.action.APPWIDGET_DISABLED" />
             </intent-filter>
             <meta-data android:name="android.appwidget.provider"
                 android:resource="@xml/widget_info" />
@@ -35,7 +38,7 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
-        <receiver android:name=".AlarmReceiver"  />
+        <receiver android:name=".AlarmReceiver"/>
         <service android:name=".UpdateService" ></service>
     </application>
 
