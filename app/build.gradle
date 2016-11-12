@@ -15,8 +15,8 @@ android {
         applicationId "com.sem.control"
         minSdkVersion 16
         targetSdkVersion 23
-        versionCode 1
-        versionName "1.0"
+        versionCode 3
+        versionName "2.1"
         multiDexEnabled true
     }
     buildTypes {
@@ -25,6 +25,15 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             debuggable false
             signingConfig signingConfigs.config
+            applicationVariants.all { variant ->
+                variant.outputs.each { output ->
+                    project.ext { appName = 'SEM_Control' }
+                    def formattedDate = new Date().format('yyyyMMddHHmmss')
+                    def newName = output.outputFile.name
+                    newName = newName.replace("app-", "$project.ext.appName-")
+                    output.outputFile = new File(output.outputFile.parent, newName)
+                }
+            }
         }
     }
     repositories { maven

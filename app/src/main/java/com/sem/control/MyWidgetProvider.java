@@ -75,8 +75,7 @@ public class MyWidgetProvider extends AppWidgetProvider {
         super.onReceive(context, intent);
         if (NetworkUtils.isConnected(context)) {
              updateWidget(context);
-                }
-       Log.i("action","widget"+intent.getAction());
+           }
     }
 
     public void updateWidget(final Context context){
@@ -196,9 +195,7 @@ public class MyWidgetProvider extends AppWidgetProvider {
     public void onEnabled(Context context)
     {
         super.onEnabled(context);
-        Log.i("MyTag", "enabled");
-        Intent msgIntent = new Intent(context, UpdateService.class);
-        context.startService(msgIntent);
+
     }
 
 }

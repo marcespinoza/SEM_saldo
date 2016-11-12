@@ -14,9 +14,11 @@ public class AlarmReceiver extends BroadcastReceiver {
 
     static int NOTIFICATION_ID = 1;
     SharedPreferences pref = null;
+
     @Override
     public void onReceive(Context context, Intent intent) {
         pref = context.getSharedPreferences("SEM_SALDO", context.MODE_PRIVATE);
+        //Muestra notificacion al iniciar un estacionamiento
         Notification noti = new Notification.Builder(context)
                 .setOngoing(true)
                 .setContentTitle("Estacionado desde "+pref.getString("tiempo_inicio", "0:0"))

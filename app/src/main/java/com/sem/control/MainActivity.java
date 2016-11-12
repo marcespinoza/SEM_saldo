@@ -1,6 +1,6 @@
 package com.sem.control;
 
-import android.app.PendingIntent;
+
 import android.appwidget.AppWidgetManager;
 import android.content.ComponentName;
 import android.content.Intent;
@@ -42,7 +42,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
@@ -92,6 +91,7 @@ public class MainActivity extends AppCompatActivity  {
         texto1.setMovementMethod(LinkMovementMethod.getInstance());
         Typeface asenine = Typeface.createFromAsset(getAssets(), "fonts/Roboto-Light.ttf");
         texto1.setTypeface(asenine);
+        //Obtengo datos del sharedPreferences
         pref = getApplicationContext().getSharedPreferences("SEM_SALDO", MODE_PRIVATE);
         usuario=pref.getString("usuario", null);
         contraseña=pref.getString("contraseña", null);
@@ -103,6 +103,7 @@ public class MainActivity extends AppCompatActivity  {
         login_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //Verifico si seleccionó algun municipio e ingreso usuario y contraseña
                 if (input_usuario.getText().toString().length() == 0 || input_contraseña.getText().toString().length() == 0 || pref.getString("municipio", "Municipio").equals("Municipio")) {
                     Snackbar snackbar = Snackbar.make(findViewById(R.id.snackbarPosition), "Selecciona Municipio y rellena todos los campos", Snackbar.LENGTH_LONG);
                     View snackBarView = snackbar.getView();
@@ -129,6 +130,7 @@ public class MainActivity extends AppCompatActivity  {
                 }
             }
         });
+        //Spinner para seleccionar municipio
         MaterialSpinner spinner = (MaterialSpinner) findViewById(R.id.spinner);
         spinner.setItems(MUNICIPIOS);
         spinner.setHint("Municipio");
@@ -210,6 +212,7 @@ public class MainActivity extends AppCompatActivity  {
                   remoteViews.setTextViewText(R.id.update, "$" + saldo);
                   remoteViews.setTextViewText(R.id.fecha_Saldo, date);
                   appWidgetManager.updateAppWidget(widgetId, remoteViews);}
+                  //Paso los datos a SaldoActivity
                   Bundle bundle = new Bundle();
                   bundle.putString("saldo", saldo);
                   bundle.putString("fecha_saldo", date);
@@ -232,6 +235,7 @@ public class MainActivity extends AppCompatActivity  {
                 //This code is executed if there is an error.
             }
         }) {
+            //Parametros enviados en el POST request
             protected Map<String, String> getParams() {
                 Map<String, String> MyData = new HashMap<String, String>();
                 MyData.put("op", "login");
@@ -246,6 +250,7 @@ public class MainActivity extends AppCompatActivity  {
         MyRequestQueue.add(MyStringRequest);
     }
 
+    //Segun Municipio seleccionado guardo la url y el id
     private void guardarMunicipio(String Municipio){
         editor = pref.edit();
         switch(Municipio){

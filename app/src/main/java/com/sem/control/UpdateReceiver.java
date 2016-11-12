@@ -44,23 +44,21 @@ import java.util.Map;
  */
 public class UpdateReceiver extends BroadcastReceiver {
 
-    RequestQueue MyRequestQueue;
-    SharedPreferences.Editor editor;
+   RequestQueue MyRequestQueue;
+   SharedPreferences.Editor editor;
    SharedPreferences pref = null;
 
     @Override
     public void onReceive(Context context, Intent intent) {
         pref = context.getSharedPreferences("SEM_SALDO", context.MODE_PRIVATE);
 
-        Log.i("action", "action"+intent.getAction());
         if ((intent.getAction().equals("android.intent.action.SCREEN_OFF"))||(intent.getAction().equals("android.intent.action.SCREEN_ON"))||(intent.getAction().equals("android.intent.action.BOOT_COMPLETED"))) {
 
             if(NetworkUtils.isConnected(context)){
-           checkEstacionamiento(context);}
-        }
+                //Si tiene conexion verifica si está estacionado y actualiza el widget
+                  checkEstacionamiento(context);}
+             }
     }
-
-
 
     public void checkEstacionamiento(final Context context){
         if((pref.getString("usuario", null))!=null) {
@@ -85,10 +83,11 @@ public class UpdateReceiver extends BroadcastReceiver {
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
-                    if (errorCode.equals("8")) {
+                    if (errorCode.equals("8") && pref.getBoolean("flag_estacionamiento",false)==true) {
                         //No tiene estacionamiento en curso
-                        SharedPreferences.Editor editor = pref.edit();
+                        editor = pref.edit();
                         editor.putInt("contador", 1);
+                        editor.putBoolean("flag_estacionamiento", false);
                         editor.commit();
                         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
                         notificationManager.cancel(1);
@@ -96,18 +95,20 @@ public class UpdateReceiver extends BroadcastReceiver {
                         PendingIntent sender = PendingIntent.getBroadcast(context, 0, intent, 0);
                         AlarmManager alarmManager = (AlarmManager) context.getSystemService(context.ALARM_SERVICE);
                         alarmManager.cancel(sender);
-                    } else if (errorCode.equals("2")) {
+                    } else if (errorCode.equals("2")&&pref.getBoolean("flag_estacionamiento",false)==false) {
                         //Tiene estacionamiento en curso
+                        //Inicio un alarmManager para enviar una notificación constante
+                        //que será recibida por AlarmReceiver
                         try {
                             sem_extra = new JSONObject(sem.getString("extra"));
                             extra = sem_extra.getString("hora");
-                            Log.i("post","extra"+extra.substring(6, 11));
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
                         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
                         String str = sdf.format(new Date());
                         editor = pref.edit();
+                        editor.putBoolean("flag_estacionamiento", true);
                         editor.putString("tiempo_inicio", extra.substring(6, 11));
                         editor.putInt("contador", getTimeDifferance(extra.substring(6, 11), str));
                         editor.commit();
@@ -118,8 +119,10 @@ public class UpdateReceiver extends BroadcastReceiver {
                         mgr.setInexactRepeating(AlarmManager.RTC, ct, 60000, pendingIntent);
                     }
                         String check_saldo = pref.getString("check_saldo", "0");
+                    Log.i("·differenc","diff"+getTimeDifferance("16:16" ,"22:11"));
                         if (Float.parseFloat(saldo) < Float.parseFloat(check_saldo)&&Float.parseFloat(saldo)!=0) {
                             showNotification(context);
+
                         }
                     //This code is executed if the server responds, whether or not the response contains data.
                     //The String 'response' contains the server's response.
@@ -174,12 +177,12 @@ public class UpdateReceiver extends BroadcastReceiver {
             int diffMinutes = (int) (diff / (60 * 1000));
 
             int diffHours = diffMinutes / 60;
-            System.out.println("diff hours" + diffHours);
+            //System.out.println("diff hours" + diffHours);
             if(diffMinutes>59){
                 diffMinutes = diffMinutes%60;
             }
             String totalDiff = diffHours+":"+diffMinutes;
-            return diffMinutes;
+            return diffHours;
         }
         catch(Exception e){
             e.printStackTrace();

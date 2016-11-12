@@ -1,22 +1,21 @@
 package com.sem.control;
 
+
+import android.app.AlarmManager;
+import android.app.Notification;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
-import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Typeface;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.CompoundButton;
@@ -24,11 +23,27 @@ import android.widget.EditText;
 import android.widget.RemoteViews;
 import android.widget.TextView;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.appyvet.rangebar.RangeBar;
 import com.github.clans.fab.FloatingActionButton;
 import com.github.clans.fab.FloatingActionMenu;
 import com.kyleduo.switchbutton.SwitchButton;
 import com.marcoscg.easylicensesdialog.EasyLicensesDialog;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by Marcelo on 10/10/2016.
@@ -43,7 +58,9 @@ public class SaldoActivity extends AppCompatActivity {
     RangeBar range_bar;
     EditText range_saldo;
     SharedPreferences pref;
+    SharedPreferences.Editor editor;
     SwitchButton switchButton;
+    RequestQueue MyRequestQueue;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,6 +115,7 @@ public class SaldoActivity extends AppCompatActivity {
         texto_2.setTypeface(asenine);
         texto_3.setTypeface(asenine);
         texto_4.setTypeface(asenine);
+        //Al cerrar sesion limpio el shared preferences y actualizo el widget
         cerrar_sesion = (FloatingActionButton) findViewById(R.id.cerrar_sesion);
         cerrar_sesion.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -138,18 +156,21 @@ public class SaldoActivity extends AppCompatActivity {
 
         saldo = (TextView) findViewById(R.id.saldo);
         ultimo_saldo = (TextView) findViewById(R.id.ultimo_saldo);
-
         saldo.setTypeface(roboto);
         ultimo_saldo.setTypeface(roboto);
+        //Obtengo los datos enviados desde el MainActivity
         Bundle bundle;
         bundle = this.getIntent().getExtras();
         String saldo_ = bundle.getString("saldo");
         String ultimo_saldo_ = bundle.getString("fecha_saldo");
         saldo.setText("$" + saldo_);
         ultimo_saldo.setText(ultimo_saldo_);
+        Intent msgIntent = new Intent(this, UpdateService.class);
+        this.startService(msgIntent);
+        checkEstacionamiento(this);
     }
 
-
+   //Actualiza el widget cuando cierra sesión
     public void updateWidget(){
         AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(getApplicationContext());
         ComponentName thisWidget = new ComponentName(getApplicationContext(), MyWidgetProvider.class);
@@ -174,14 +195,83 @@ public class SaldoActivity extends AppCompatActivity {
          switch (item.getItemId()){
              case R.id.about:
                  EasyLicensesDialog easyLicensesDialog = new EasyLicensesDialog(this);
-                 easyLicensesDialog.setTitle("SEM Control"); //by default EasyLicensesDialog comes without any title.
-                 easyLicensesDialog.setCancelable(true); //true or false
-                 easyLicensesDialog.setIcon(R.mipmap.ic_launch); //add an icon to the title
+                 easyLicensesDialog.setTitle("SEM Control");
+                 easyLicensesDialog.setCancelable(true);
+                 easyLicensesDialog.setIcon(R.mipmap.ic_launch);
                  easyLicensesDialog.show();
          }
-
         return super.onOptionsItemSelected(item);
     }
 
+    public void checkEstacionamiento(final Context context){
+        if((pref.getString("usuario", null))!=null) {
+            pref = context.getSharedPreferences("SEM_SALDO", context.MODE_PRIVATE);
+            MyRequestQueue = Volley.newRequestQueue(context);
+            String url = pref.getString("url_municipio","");
+            StringRequest MyStringRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
+                @Override
+                public void onResponse(String response) {
+                    JSONObject sem;
+                    String s_saldo = null;
+                    DateFormat df = new SimpleDateFormat("dd/MM/yyyy - HH:mm");
+                    String date = df.format(Calendar.getInstance().getTime());
+                    try {
+                        sem = new JSONObject(response);
+                        s_saldo = sem.getString("saldo");
+                        saldo.setText("$" + s_saldo);
+                        ultimo_saldo.setText(date);
+                        editor = pref.edit();
+                        editor.putString("saldo", s_saldo);
+                        editor.putString("fecha_saldo", date);
+                        editor.commit();
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    String check_saldo = pref.getString("check_saldo", "0");
+                    if (Float.parseFloat(s_saldo) < Float.parseFloat(check_saldo)&&Float.parseFloat(s_saldo)!=0) {
+                        showNotification(context);
+                    }
+                    //This code is executed if the server responds, whether or not the response contains data.
+                    //The String 'response' contains the server's response.
+                }
+            }, new Response.ErrorListener() { //Create an error listener to handle errors appropriately.
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    //This code is executed if there is an error.
+                }
+            }) {
+                protected Map<String, String> getParams() {
+                    Map<String, String> MyData = new HashMap<String, String>();
+                    MyData.put("op", "consultarEstado");
+                    MyData.put("celular", pref.getString("usuario", null));
+                    MyData.put("token", pref.getString("token", null));
+                    MyData.put("codigoMunicipio", pref.getString("id_municipio",""));
+                    MyData.put("agente", "8");
+                    MyData.put("version", "1.12");//Add the data you'd like to send to the server.
+                    return MyData;
+                };
+            };
+            MyRequestQueue.add(MyStringRequest);
+        }
+    }
+
+    private void showNotification (Context context){
+
+        Notification noti = new Notification.Builder(context)
+                .setContentTitle("Estacionamiento medido ")
+                .setContentText("Cargar credito")
+                .setSmallIcon(R.mipmap.ic_saldo)
+                .build();
+        NotificationManager notificationManager = (NotificationManager) context.getSystemService(context.NOTIFICATION_SERVICE);
+        // hide the notification after its selected
+        noti.flags |= Notification.FLAG_AUTO_CANCEL;
+        notificationManager.notify(0, noti);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        checkEstacionamiento(this);
+    }
 
 }
