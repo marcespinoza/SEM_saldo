@@ -102,8 +102,11 @@ public class SaldoActivity extends AppCompatActivity {
         switchButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
+                String str = sdf.format(new Date());
                 SharedPreferences.Editor editor = pref.edit();
                 editor.putBoolean("switch", isChecked);
+                editor.putString("switch_date", str);
                 editor.commit();
             }
         });

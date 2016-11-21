@@ -118,11 +118,14 @@ public class UpdateReceiver extends BroadcastReceiver {
                         PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intenti, PendingIntent.FLAG_CANCEL_CURRENT);
                         mgr.setInexactRepeating(AlarmManager.RTC, ct, 60000, pendingIntent);
                     }
+                        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
+                        String str = sdf.format(new Date());
                         String check_saldo = pref.getString("check_saldo", "0");
-                    Log.i("·differenc","diff"+getTimeDifferance("16:16" ,"22:11"));
-                        if (Float.parseFloat(saldo) < Float.parseFloat(check_saldo)&&Float.parseFloat(saldo)!=0) {
+                        if (Float.parseFloat(saldo) < Float.parseFloat(check_saldo) && Float.parseFloat(saldo)!=0 && getHours(pref.getString("switch_date","24:00"), str)>23) {
                             showNotification(context);
-
+                            SharedPreferences.Editor editor = pref.edit();
+                            editor.putString("switch_date", str);
+                            editor.commit();
                         }
                     //This code is executed if the server responds, whether or not the response contains data.
                     //The String 'response' contains the server's response.
@@ -182,6 +185,31 @@ public class UpdateReceiver extends BroadcastReceiver {
                 diffMinutes = diffMinutes%60;
             }
             String totalDiff = diffHours+":"+diffMinutes;
+            return diffMinutes;
+        }
+        catch(Exception e){
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public static int getHours(String startTime,String endTime){
+        try{
+            Date time1 = new SimpleDateFormat("HH:mm").parse(endTime);
+            Calendar calendar1 = Calendar.getInstance();
+            calendar1.setTime(time1);
+
+            Date time2 = new SimpleDateFormat("HH:mm").parse(startTime);
+            Calendar calendar2 = Calendar.getInstance();
+            calendar2.setTime(time2);
+
+            Date x = calendar1.getTime();
+            Date xy = calendar2.getTime();
+            long diff = x.getTime() - xy.getTime();
+            int diffMinutes = (int) (diff / (60 * 1000));
+
+            int diffHours = diffMinutes / 60;
+
             return diffHours;
         }
         catch(Exception e){
